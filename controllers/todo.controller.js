@@ -18,8 +18,8 @@ class TodoController {
         const updateTask = await db.query('UPDATE todo SET content = $1 WHERE todo_id = $2 RETURNING *', [body, id]);
         return updateTask.rows[0];
     }
-    async deleteTaskByUser(id){
-        const deleteTask = await db.query('DELETE FROM todo where todo_id = $1',[id]);
+    async deleteTaskByUser(id, todo_id){
+        const deleteTask = await db.query('DELETE FROM todo where todo_id = $1 and person_id = $2',[todo_id, id]);
         return deleteTask.rows[0];
     }
 }
