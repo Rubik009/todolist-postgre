@@ -3,6 +3,50 @@ const UserController = require("../controllers/user.controller");
 const router = express.Router();
 const authenticatToken = require('../middleware/auth');
 
+
+/**
+ * @swagger
+ *  /api/user/register:
+ *    post:
+ *      description: 
+ *          Register.
+ *      tags:
+ *          - Users
+ *      parameters:
+ *        - name: user 
+ *          in: body
+ *          description: user object
+ *          required: true
+ *          schema:
+ *            $ref: '#/definitions/User'
+ *      responses:
+ *        200:
+ *          description: User registration
+ *          schema:
+ *              title: Return String
+ *              type: string
+ *              example: "User added!"
+ * definitions:
+ *   User:
+ *     description: User object
+ *     properties:
+ *       username:
+ *         type: string
+ *         example: alesha
+ *         description: username
+ *       password:
+ *         type: string
+ *         example: alesha
+ *         description: user password
+ *       role:
+ *         type: string
+ *         example: user
+ *         description: user role
+ *     required:
+ *      - username
+ *      - password
+ *      - role
+ */
 router.post("/register", async (req, res) => {
     try {
         const user = await UserController.register(req.body);
@@ -13,6 +57,45 @@ router.post("/register", async (req, res) => {
     }
 });
 
+
+/**
+ * @swagger
+ *  /api/user/login:
+ *    post:
+ *      description: 
+ *          Login.
+ *      tags:
+ *          - Users
+ *      parameters:
+ *        - name: user 
+ *          in: body
+ *          description: user object
+ *          required: true
+ *          schema:
+ *            $ref: '#/definitions/User'
+ *      responses:
+ *        200:
+ *          description: Successful response
+ *          schema:
+ *              title: Return String
+ *              type: string
+ *              example: "succesfully"
+ * definitions:
+ *   User:
+ *     description: User object
+ *     properties:
+ *       username:
+ *         type: string
+ *         example: roman
+ *         description: user login
+ *       password:
+ *         type: string
+ *         example: roman
+ *         description: user password 
+ *     required:
+ *      - username
+ *      - password
+ */
 router.post("/login", async (req, res) => {
     try {
         const user = await UserController.login(req.body);
@@ -23,7 +106,19 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/",authenticatToken, async (req, res) => {
+
+/**
+ * @swagger
+ * /api/user:
+ *  get:
+ *      description: List of users
+ *      tags:
+ *        - Users 
+ *      responses:
+ *          '200':
+ *              description: A succesful response
+ */
+router.get("/", async (req, res) => {
     try {
         const users = await UserController.getUsers();
         res.status(200).json({ message: "List of users", users });
