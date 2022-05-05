@@ -1,7 +1,7 @@
 const express = require("express");
 const UserController = require("../controllers/user.controller");
 const router = express.Router();
-const authenticatToken = require('../middleware/auth');
+const roleAuthenticatToken = require('../middleware/role.auth');
 
 
 /**
@@ -111,14 +111,19 @@ router.post("/login", async (req, res) => {
  * @swagger
  * /api/user:
  *  get:
- *      description: List of users
+ *      description: Use a request to get users only for admins
  *      tags:
- *        - Users 
+ *        - Users
+ *      parameters:
+ *      - name : authorization
+ *        in : header
+ *        type : string
+ *        required : true 
  *      responses:
  *          '200':
  *              description: A succesful response
  */
-router.get("/", async (req, res) => {
+router.get("/",roleAuthenticatToken('admin'), async (req, res) => {
     try {
         const users = await UserController.getUsers();
         res.status(200).json({ message: "List of users", users });

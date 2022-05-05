@@ -97,7 +97,7 @@ router.get("/task", authenticatToken, async (req, res) => {
  *        - in: body
  *          name: Task
  *          required: true
- *          description: write title of task need to change anf content to put instead of previous one
+ *          description: write title of task need to change and content to put instead of previous one
  *          schema:
  *              $ref: '#/definitions/Task'
  *      responses:
@@ -120,7 +120,7 @@ router.patch("/update", authenticatToken, async (req, res) => {
         const authHeader = req.headers.authorization;
         const token = authHeader && authHeader.split(' ')[1];
         const decodedtoken = JSON.parse(atob(token.split('.')[1]))
-        const user = await TodoController.updateTaskByUser(decodedtoken.id, req.body.todo_id, req.body.content);
+        const user = await TodoController.updateTaskByUser(decodedtoken.id, req.body.title, req.body.content);
         res.status(200).json({ message: "User updated!", user });
 
     } catch (err) {
@@ -146,7 +146,7 @@ router.patch("/update", authenticatToken, async (req, res) => {
  *        - in: body
  *          name: Task
  *          required: true
- *          description: write title of task need to change anf content to put instead of previous one
+ *          description: write title of task need to delete
  *          schema:
  *              $ref: '#/definitions/Task'
  *      responses:
@@ -156,9 +156,9 @@ router.patch("/update", authenticatToken, async (req, res) => {
  *  Task:
  *      type: object
  *      required:
- *          - todo_id
+ *          - title
  *      properties:
- *          todo_id: 
+ *          title: 
  *              type: string
  */
 router.delete("/delete", authenticatToken, async (req, res) => {
@@ -166,7 +166,7 @@ router.delete("/delete", authenticatToken, async (req, res) => {
         const authHeader = req.headers.authorization;
         const token = authHeader && authHeader.split(' ')[1];
         const decodedtoken = JSON.parse(atob(token.split('.')[1]))
-        const user = await TodoController.deleteTaskByUser(decodedtoken.id, req.body.todo_id);
+        const user = await TodoController.deleteTaskByUser(decodedtoken.id, req.body.title);
         res.status(200).json({ message: "User deleted!", user });
 
     } catch (err) {

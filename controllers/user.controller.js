@@ -28,8 +28,9 @@ class UserController {
             return `password - ${password} is not right`;
         }
         const token = jwt.sign({
-            id : user.rows.map(item => item.id).join(""),
-            user : user.rows.map(item => item.username).join("")
+            id: user.rows.map(item => item.id).join(""),
+            user: user.rows.map(item => item.username).join(""),
+            role: user.rows.map(item => item.role).join("")
         }, process.env.ACCESS_TOKEN_SECRET);
         return `${token}`;
     }
