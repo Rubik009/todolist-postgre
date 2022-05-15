@@ -14,7 +14,6 @@ function roleAuthenticatToken(roles) {
                 if (err) throw new Error('invalid token');
                 let hasRole = false;
                 const role = user.role;
-                console.log(role)
                 if(role === roles){
                     hasRole = true;
                 }
