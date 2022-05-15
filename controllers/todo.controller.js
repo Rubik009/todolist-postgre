@@ -1,22 +1,40 @@
 const db = require('../config/database');
+const modules = require('../modules/modules');
 
 class TodoController {
-    async createTask(body) {
-        const { title, content, person_id } = body;
-        const newTask = await db.query('INSERT INTO todo (title, content, person_id) values ($1, $2, $3) RETURNING *', [title, content, person_id]);
-        return newTask.rows[0];
+    async createTask(body, person_id, username) {
+        const { title, content } = body;
+        const newTask = await modules.todo.create({
+            title,
+            content,
+            person_id: person_id,
+        });
+        return `Task with title - ${newTask.title}  for user - ${username} added  `;
     }
     async getTaskbyUser(id) {
-        const tasks = await db.query('SELECT * FROM todo where person_id = $1', [id]);
-        return tasks.rows;
+        const tasks = await modules.todo.findAll({
+            where: { person_id: id },
+            raw: true,
+        });
+        console.log(tasks)
+        return tasks;
     }
-    async updateTaskByUser(id, title, content) {
-        const updateTask = await db.query('UPDATE todo SET content = $1 WHERE person_id = $2 and title = $3 RETURNING *', [content, id, title]);
-        return updateTask.rows[0];
+    async updateTaskByUser(id, person_id, title, content) {
+        const updateTask = await modules.todo.update({
+            title: title,
+            content: content,
+            person_id : person_id,
+        }, { where: { id: id } });
+        return `code of update ${updateTask}, Task with id - ${id} updated!`;
     }
-    async deleteTaskByUser(id, todo_id){
-        const deleteTask = await db.query('DELETE FROM todo where todo_id = $1 and person_id = $2',[todo_id, id]);
-        return deleteTask.rows[0];
+    async deleteTaskByUser(id, todo_id) {
+        const deleteTask = await modules.todo.destroy({
+            where : {
+                person_id: id,
+                id : todo_id,
+            }
+        });
+        return `code of delete ${deleteTask}, Task with id - ${todo_id} deleted!`;
     }
 }
 

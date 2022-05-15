@@ -50,7 +50,7 @@ const roleAuthenticatToken = require('../middleware/role.auth');
 router.post("/register", async (req, res) => {
     try {
         const user = await UserController.register(req.body);
-        res.status(200).json({ message: "User added!", user });
+        res.status(200).json({ message: user });
 
     } catch (err) {
         console.log({ message: err });
@@ -99,7 +99,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const user = await UserController.login(req.body);
-        res.status(200).json({ Bearer: user });
+        res.status(200).json({ user });
 
     } catch (err) {
         console.log({ message: err });
@@ -123,18 +123,38 @@ router.post("/login", async (req, res) => {
  *          '200':
  *              description: A succesful response
  */
-router.get("/",roleAuthenticatToken('admin'), async (req, res) => {
+router.get("/", roleAuthenticatToken('admin'), async (req, res) => {
     try {
         const users = await UserController.getUsers();
         res.status(200).json({ message: "List of users", users });
-
     } catch (err) {
         console.log({ message: err });
     }
 });
 
-
-router.get("/:id", async (req, res) => {
+/**
+ * @swagger
+ * /api/user/{id}:
+ *  get:
+ *      description: See user by id for admins
+ *      tags:
+ *        - Users
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name : authorization
+ *          in : header
+ *          type : string
+ *          required : true
+ *        - in : path
+ *          name : id
+ *          type : string
+ *          required : true 
+ *      responses:
+ *          '200':
+ *              description: A succesful response
+ */
+router.get("/:id",roleAuthenticatToken('admin'), async (req, res) => {
     try {
         const user = await UserController.getOneUser(req.params.id);
         res.status(200).json({ message: "User", user });
@@ -144,17 +164,77 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.patch("/update/:id", async (req, res) => {
+
+/**
+ * @swagger
+ * /api/user/update/{id}:
+ *  patch:
+ *      description: Edit user in the list for admins
+ *      tags:
+ *        - Users
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name : authorization
+ *          in : header
+ *          type : string
+ *          required : true
+ *        - in : path
+ *          name : id
+ *          type : string
+ *          required : true 
+ *        - in: body
+ *          name: Users
+ *          required: true
+ *          description: write user id need to change username
+ *          schema:
+ *              $ref: '#/definitions/Users'
+ *      responses:
+ *          '200':
+ *              description: A succesful response
+ * definitions:
+ *  Edit_User:
+ *      type: object
+ *      required:
+ *          - username
+ *      properties:
+ *          username: 
+ *              type: string
+ */
+router.patch("/update/:id",roleAuthenticatToken('admin'), async (req, res) => {
     try {
         const user = await UserController.updateUser(req.params.id, req.body.username);
-        res.status(200).json({ message: "User updated!", user });
+        res.status(200).json({ message: user });
 
     } catch (err) {
         console.log({ message: err });
     }
 });
 
-router.delete("/delete/:id", async (req, res) => {
+
+/**
+ * @swagger
+ * /api/user/delete/{id}:
+ *  delete:
+ *      description: Delete user for admins
+ *      tags:
+ *        - Users
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name : authorization
+ *          in : header
+ *          type : string
+ *          required : true 
+ *        - in : path
+ *          type : string
+ *          name : id
+ *          required : true 
+ *      responses:
+ *          '200':
+ *              description: A succesful response
+ */
+router.delete("/delete/:id",roleAuthenticatToken('admin'), async (req, res) => {
     try {
         const user = await UserController.deleteUser(req.params.id);
         res.status(200).json({ message: "User deleted!", user });

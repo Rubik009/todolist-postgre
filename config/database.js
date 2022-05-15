@@ -1,6 +1,20 @@
 const pg = require('pg');
+require('dotenv').config();
+const {Sequelize} = require('sequelize');
 
-var client = new pg.Client("postgres://pvnhzcrj:jC7pqIy-pSXe77IwU3sEvIcGH0PBRWYP@chunee.db.elephantsql.com/pvnhzcrj");
+
+module.exports = new Sequelize (
+  process.env.DATABASE,
+  process.env.USER,
+  process.env.PASSWORD,
+  {
+    host : process.env.HOST,
+    dialect : process.env.DIALECT
+  }
+)
+
+
+/*const client = new pg.Client(process.env.DATABASE_URL);
 
 client.connect(function(err) {
   if(err) {
@@ -16,4 +30,4 @@ client.connect(function(err) {
 
 });
 
-module.exports = client;
+module.exports = client;*/

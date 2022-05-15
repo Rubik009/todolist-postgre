@@ -32,18 +32,18 @@ const authenticatToken = require('../middleware/auth');
  *      required:
  *          - title
  *          - content
- *          - person_id
  *      properties:
  *          title: 
  *              type: string
  *          content: 
  *              type: string
- *          person_id: 
- *              type: string
  */
 router.post("/create", authenticatToken, async (req, res) => {
     try {
-        const task = await TodoController.createTask(req.body);
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+        const decodedtoken = JSON.parse(atob(token.split('.')[1]))
+        const task = await TodoController.createTask(req.body, decodedtoken.id, decodedtoken.username);
         res.status(200).json({ message: 'Task added', task });
     } catch (err) {
         console.log({ message: err });
@@ -82,7 +82,7 @@ router.get("/task", authenticatToken, async (req, res) => {
 
 /**
  * @swagger
- * /api/todo/update:
+ * /api/todo/update/{id}:
  *  patch:
  *      description: Edit task in the list
  *      tags:
@@ -92,6 +92,10 @@ router.get("/task", authenticatToken, async (req, res) => {
  *      parameters:
  *        - name : authorization
  *          in : header
+ *          type : string
+ *          required : true
+ *        - in : path
+ *          name : id
  *          type : string
  *          required : true 
  *        - in: body
@@ -103,6 +107,8 @@ router.get("/task", authenticatToken, async (req, res) => {
  *      responses:
  *          '200':
  *              description: A succesful response
+ *          '400':
+ *              description: Wrong parameters
  * definitions:
  *  Task:
  *      type: object
@@ -115,13 +121,16 @@ router.get("/task", authenticatToken, async (req, res) => {
  *          content: 
  *              type: string
  */
-router.patch("/update", authenticatToken, async (req, res) => {
+router.patch("/update/:id", authenticatToken, async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
         const token = authHeader && authHeader.split(' ')[1];
         const decodedtoken = JSON.parse(atob(token.split('.')[1]))
-        const user = await TodoController.updateTaskByUser(decodedtoken.id, req.body.title, req.body.content);
-        res.status(200).json({ message: "User updated!", user });
+        const user = await TodoController.updateTaskByUser(req.params.id, decodedtoken.id, req.body.title, req.body.content);
+        if (user.includes(0)) {
+            res.status(400).json({ message: 'Parameters are not right!' });
+        }
+        res.status(200).json({ message: user });
 
     } catch (err) {
         console.log({ message: err });
@@ -131,8 +140,8 @@ router.patch("/update", authenticatToken, async (req, res) => {
 
 /**
  * @swagger
- * /api/todo/delete:
- *  delete:
+ * /api/todo/delete/{id}:
+ * delete:
  *      description: Delete task of the user
  *      tags:
  *        - Tasks
@@ -143,31 +152,26 @@ router.patch("/update", authenticatToken, async (req, res) => {
  *          in : header
  *          type : string
  *          required : true 
- *        - in: body
- *          name: Task
- *          required: true
- *          description: write title of task need to delete
- *          schema:
- *              $ref: '#/definitions/Task'
+ *        - in : path
+ *          type : string
+ *          name : id
+ *          required : true 
  *      responses:
  *          '200':
  *              description: A succesful response
- * definitions:
- *  Task:
- *      type: object
- *      required:
- *          - title
- *      properties:
- *          title: 
- *              type: string
+ *          '400':
+ *              description: Wrong id
  */
-router.delete("/delete", authenticatToken, async (req, res) => {
+router.delete("/delete/:id", authenticatToken, async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
         const token = authHeader && authHeader.split(' ')[1];
-        const decodedtoken = JSON.parse(atob(token.split('.')[1]))
-        const user = await TodoController.deleteTaskByUser(decodedtoken.id, req.body.title);
-        res.status(200).json({ message: "User deleted!", user });
+        const decodedtoken = JSON.parse(atob(token.split('.')[1]));
+        const user = await TodoController.deleteTaskByUser(decodedtoken.id, req.params.id);
+        if (user.includes(0)) {
+            res.status(400).json({ message: 'There is no task included this id' })
+        }
+        res.status(200).json({ message: user });
 
     } catch (err) {
         console.log({ message: err });

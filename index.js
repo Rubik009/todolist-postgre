@@ -29,7 +29,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(bodyParser.json());
 app.use("/api", routes);
 
-
+db.authenticate()
+  .then(() => console.log('DB connected!'))
+  .catch((err) => console.log('error -> ', err));
 const server = app.listen(process.env.PORT, () => console.log('Server started'));
 
 module.exports = server;
